@@ -7,11 +7,11 @@
 ## 开发
 
 ```bash
-git clone git@github.com:halo-dev/theme-vite-starter.git ~/halo2-dev/themes/theme-vite-starter
+git clone git@github.com:Anyexyz/theme-material.git ~/halo2-dev/themes/theme-material
 ```
 
 ```bash
-cd ~/halo2-dev/themes/theme-vite-starter
+cd ~/halo2-dev/themes/theme-material
 ```
 
 ```bash

@@ -4,19 +4,19 @@
     "halo",
     "halo-theme"
   ],
-  "homepage": "https://github.com/halo-dev/theme-vite-starter#readme",
+  "homepage": "https://github.com/Anyexyz/theme-material#readme",
   "bugs": {
-    "url": "https://github.com/halo-dev/theme-vite-starter/issues"
+    "url": "https://github.com/Anyexyz/theme-material/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/halo-dev/theme-vite-starter"
+    "url": "https://github.com/Anyexyz/theme-material"
   },
   "license": "GPL-3.0",
   "author": {
     "name": "Halo",
     "email": "hi@halo.run",
-    "url": "https://github.com/halo-dev"
+    "url": "https://github.com/Anyexyz"
   },
   "maintainers": [
     {
