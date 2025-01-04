@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html
+  lang="zh-CN"
+  xmlns:th="https://www.thymeleaf.org"
+  th:replace="~{layout :: html(head = null,content = ~{::content})}"
+>
+  <th:block th:fragment="content">
+    <!-- 友链页面头部 -->
+    <div class="links-header">
+      <h1 class="links-title">
+        <i class="ri-links-line"></i>
+        友情链接
+      </h1>
+      <p class="links-description">
+        欢迎交换友链，一起分享美好
+      </p>
+    </div>
+
+    <!-- 友链列表 -->
+    <div class="links-grid">
+      <halo:link-group group="links">
+        <a th:each="link : ${links}" 
+           th:href="${link.spec.url}" 
+           class="link-card"
+           target="_blank"
+           rel="noopener">
+          <div class="link-avatar">
+            <img th:if="${link.spec.logo}" 
+                 th:src="${link.spec.logo}" 
+                 th:alt="${link.spec.displayName}"
+                 loading="lazy">
+            <i th:unless="${link.spec.logo}" class="ri-link"></i>
+          </div>
+          <div class="link-content">
+            <h2 class="link-title" th:text="${link.spec.displayName}">友链标题</h2>
+            <p class="link-description" th:if="${link.spec.description}" 
+               th:text="${link.spec.description}">友链描述</p>
+          </div>
+        </a>
+      </halo:link-group>
+    </div>
+  </th:block>
+</html> 

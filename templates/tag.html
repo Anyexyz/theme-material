@@ -1,19 +1,35 @@
 <!DOCTYPE html>
 <html
+  lang="zh-CN"
   xmlns:th="https://www.thymeleaf.org"
   th:replace="~{layout :: html(head = null,content = ~{::content})}"
 >
   <th:block th:fragment="content">
-    <h1 th:text="${tag.spec.displayName}"></h1>
-    <ul>
-      <li th:each="post : ${posts.items}">
-        <a
-          th:href="@{${post.status.permalink}}"
-          th:text="${post.spec.title}"
-        ></a>
-      </li>
-    </ul>
-    <a th:if="${posts.hasPrevious()}" th:href="@{${posts.prevUrl}}">上一页</a>
-    <a th:if="${posts.hasNext()}" th:href="@{${posts.nextUrl}}">下一页</a>
+    <!-- 标签云 -->
+    <div class="tags-header">
+      <div class="tags-info">
+        <h1 class="tags-title">
+          <i class="ri-price-tag-3-line"></i>
+          <span>标签云</span>
+        </h1>
+        <div class="tags-meta">
+          <span class="tags-count">
+            <i class="ri-price-tag-line"></i>
+            共 <span th:text="${tags.total}">0</span> 个标签
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 标签列表 -->
+    <div class="tags-grid">
+      <a th:each="tag : ${tags.items}" 
+         th:href="@{${tag.status.permalink}}"
+         class="tag-item"
+         th:style="'--tag-weight: ' + ${tag.postCount * 0.1 + 1}">
+        <span class="tag-name" th:text="${tag.spec.displayName}">标签名称</span>
+        <span class="tag-count" th:text="${tag.postCount}">0</span>
+      </a>
+    </div>
   </th:block>
 </html>

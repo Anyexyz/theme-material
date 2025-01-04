@@ -5,9 +5,43 @@ metadata:
 spec:
   forms:
     - group: style
-      label: 样式
+      label: 样式设置
       formSchema:
         - $formkit: color
+          name: content_background_color
+          label: 卡片内容背景色
+          value: "#FFF1F2"
+        - $formkit: color
           name: background_color
-          label: 背景颜色
-          value: "#f2f2f2"
+          label: 页面背景色
+          value: "#FFF5F6"
+        - $formkit: color
+          name: primary_color
+          label: 主题色
+          value: "#E91E63"
+        - $formkit: color
+          name: surface_color
+          label: 表面色
+          value: "#FFFFFF"
+        - $formkit: color
+          name: on_surface_color
+          label: 文字颜色
+          value: "#31111D"
+    - group: beian
+      label: 备案设置
+      formSchema:
+        - $formkit: text
+          name: icp_text
+          label: ICP备案号
+        - $formkit: text
+          name: icp_link
+          label: ICP备案跳转链接
+          value: https://beian.miit.gov.cn/
+
+        - $formkit: text
+          name: gongan_text
+          label: 公安联网备案号
+        - $formkit: text
+          name: gongan_link
+          label: 公安联网备案跳转链接
+          value: https://beian.mps.gov.cn/#/query/webSearch

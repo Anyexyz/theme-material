@@ -1,33 +1,228 @@
 <!doctype html>
-<html
-  lang="en"
-  xmlns:th="https://www.thymeleaf.org"
-  th:fragment="html (head,content)"
->
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=2"
-    />
-    <title th:text="${site.title}"></title>
-    <link
-      rel="stylesheet"
-      th:href="@{/assets/css/style.css?v={version}(version=${theme.spec.version})}"
-    />
-    <script
-      th:src="@{/assets/js/main.js?v={version}(version=${theme.spec.version})}"
-    ></script>
-    <th:block th:if="${head != null}">
-      <th:block th:replace="${head}" />
-    </th:block>
-  </head>
-  <body
-    th:style="'background-color: '+${theme.config.style.background_color ?: '#f2f2f2'}"
-  >
-    <section>
+<html lang="zh-CN" xmlns:th="https://www.thymeleaf.org" th:fragment="html (head,content)">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2" />
+  <title th:text="${post != null ? post.spec.title + ' - ' + site.title : site.title}"></title>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/assets/css/style.css?v={version}(version=${theme.spec.version})}" />
+  <script th:src="@{/assets/js/main.js?v={version}(version=${theme.spec.version})}"></script>
+  <th:block th:if="${head != null}">
+    <th:block th:replace="${head}" />
+  </th:block>
+</head>
+
+<body th:style="'--content-background-color: '+${theme.config.style.content_background_color ?: '#ffffff'}+';
+            --primary-color: '+${theme.config.style.primary_color ?: '#E91E63'}+';
+            --surface-color: '+${theme.config.style.surface_color ?: '#ffffff'}+';
+            --on-surface-color: '+${theme.config.style.on_surface_color ?: '#31111D'}+';
+            background-color: '+${theme.config.style.background_color ?: '#FFF5F6'}">
+  <!-- 侧边栏 -->
+  <aside class="sidebar">
+    <!-- 主菜单 -->
+    <div class="menu-wrapper" th:with="menu = ${menuFinder.getPrimary()}">
+      <!-- 遍历一级菜单 -->
+      <th:block th:each="menuItem : ${menu.menuItems}">
+        <!-- 如果有子菜单，创建可展开的菜单组 -->
+        <div th:if="${not #lists.isEmpty(menuItem.children)}" class="menu-section">
+          <div class="menu-title">
+            <i class="ri-folder-line"></i>
+            <span th:text="${menuItem.status.displayName}"></span>
+            <i class="ri-arrow-down-s-line"></i>
+          </div>
+          <div class="menu-items">
+            <a th:each="childMenuItem : ${menuItem.children}" th:href="${childMenuItem.status.href}"
+              th:target="${childMenuItem.spec.target?.value}" class="menu-item">
+              <i class="ri-circle-line"></i>
+              <span th:text="${childMenuItem.status.displayName}"></span>
+            </a>
+          </div>
+        </div>
+        <!-- 如果没有子菜单，创建独立的菜单项 -->
+        <div class="menu-section" th:unless="${not #lists.isEmpty(menuItem.children)}">
+          <a th:href="${menuItem.status.href}" th:target="${menuItem.spec.target?.value}" class="menu-item">
+            <i class="ri-arrow-right-s-line"></i>
+            <span th:text="${menuItem.status.displayName}"></span>
+          </a>
+        </div>
+      </th:block>
+    </div>
+
+    <!-- 版权和备案信息 -->
+    <div class="sidebar-footer">
+      <div class="copyright">
+        © <span th:text="${#dates.year(#dates.createNow())}">2024</span>
+        <a th:href="${site.url}" th:text="${site.title}">网站标题</a>
+      </div>
+      <!-- 备案信息 -->
+      <div class="beian" th:if="${theme.config.beian != null}">
+        <a th:if="${theme.config.beian.icp_text}" th:href="${theme.config.beian.icp_link}"
+          th:text="${theme.config.beian.icp_text}" target="_blank" rel="nofollow"></a>
+        <a th:if="${theme.config.beian.gongan_text}" th:href="${theme.config.beian.gongan_link}"
+          th:text="${theme.config.beian.gongan_text}" target="_blank" rel="nofollow"></a>
+      </div>
+    </div>
+    <halo:footer />
+  </aside>
+
+  <!-- 主要内容区 -->
+  <main class="main-content">
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+      <div class="top-nav-left">
+        <button class="menu-toggle" aria-label="Toggle Menu">
+          <i class="ri-menu-line"></i>
+        </button>
+        
+        <!-- 动态标题区域 -->
+        <div class="top-nav-brand" id="topNavBrand">
+          <!-- 在文章页面显示文章标题，其他页面显示站点信息 -->
+          <th:block th:if="${post != null}">
+            <span class="top-nav-title" th:text="${post.spec.title}">文章标题</span>
+          </th:block>
+          <th:block th:unless="${post != null}">
+            <a href="/" class="top-nav-logo" th:if="${site.logo}">
+              <img th:src="${site.logo}" th:alt="${site.title}">
+            </a>
+            <span class="top-nav-title" th:text="${site.title}">站点标题</span>
+          </th:block>
+        </div>
+      </div>
+      
+      <div class="top-nav-right">
+        <!-- 搜索按钮 -->
+        <button th:if="${pluginFinder.available('PluginSearchWidget')}" 
+                class="nav-btn" 
+                aria-label="Search" 
+                onclick="SearchWidget.open()">
+          <i class="ri-search-line"></i>
+        </button>
+        <!-- 登录按钮 -->
+        <button class="nav-btn" 
+                aria-label="Login" 
+                onclick="window.location.href='/login'">
+          <i class="ri-user-line"></i>
+        </button>
+      </div>
+    </nav>
+
+    <!-- 站点标题区域 -->
+    <header class="site-header" th:unless="${post != null}">
+      <div class="site-brand">
+        <a href="/" class="site-logo" th:if="${site.logo}">
+          <img th:src="${site.logo}" th:alt="${site.title}">
+        </a>
+        <div class="site-info">
+          <h1 class="site-title">
+            <a href="/" th:text="${site.title}">站点标题</a>
+          </h1>
+          <p class="site-subtitle" th:if="${site.subtitle}" th:text="${site.subtitle}">站点副标题</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="content-wrapper">
       <th:block th:replace="${content}" />
     </section>
-  </body>
+  </main>
+
+  <script>
+    // 检查本地存储中的侧边栏状态
+    document.addEventListener('DOMContentLoaded', function () {
+      const sidebarOpen = localStorage.getItem('sidebarOpen') === 'true';
+      if (sidebarOpen) {
+        document.body.classList.add('sidebar-open');
+      }
+    });
+
+    // 侧边栏切换
+    document.querySelector('.menu-toggle').addEventListener('click', function (e) {
+      e.stopPropagation(); // 阻止事件冒泡
+      document.body.classList.toggle('sidebar-open');
+      localStorage.setItem('sidebarOpen', document.body.classList.contains('sidebar-open'));
+    });
+
+    // 菜单展开/收起
+    document.querySelectorAll('.menu-title').forEach(title => {
+      title.addEventListener('click', function (e) {
+        e.stopPropagation(); // 阻止事件冒泡
+        this.parentElement.classList.toggle('expanded');
+      });
+    });
+
+    // 点击内容区域关闭侧边栏
+    document.querySelector('.main-content').addEventListener('click', function () {
+      if (document.body.classList.contains('sidebar-open')) {
+        document.body.classList.remove('sidebar-open');
+        localStorage.setItem('sidebarOpen', 'false');
+      }
+    });
+
+    // 点击遮罩层关闭侧边栏
+    document.addEventListener('click', function (e) {
+      if (document.body.classList.contains('sidebar-open') &&
+        !e.target.closest('.sidebar') &&
+        !e.target.closest('.menu-toggle')) {
+        document.body.classList.remove('sidebar-open');
+        localStorage.setItem('sidebarOpen', 'false');
+      }
+    });
+
+    // 点击链接后关闭侧边栏
+    document.querySelectorAll('.sidebar a').forEach(link => {
+      link.addEventListener('click', function () {
+        document.body.classList.remove('sidebar-open');
+        localStorage.setItem('sidebarOpen', 'false');
+      });
+    });
+
+    // ESC 键关闭侧边栏
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && document.body.classList.contains('sidebar-open')) {
+        document.body.classList.remove('sidebar-open');
+        localStorage.setItem('sidebarOpen', 'false');
+      }
+    });
+
+    // 显示或隐藏导航栏中的标题
+    document.addEventListener('DOMContentLoaded', function() {
+      const isPostPage = document.querySelector('.post-detail') !== null;
+      if (isPostPage) {
+        const postTitle = document.querySelector('.post-header');
+        const topNavBrand = document.getElementById('topNavBrand');
+
+        function toggleTopNavTitle() {
+          const titleBottom = postTitle.getBoundingClientRect().bottom;
+          if (titleBottom < 0) {
+            topNavBrand.style.display = 'flex';
+          } else {
+            topNavBrand.style.display = 'none';
+          }
+        }
+
+        window.addEventListener('scroll', toggleTopNavTitle);
+        toggleTopNavTitle(); // 初始化检查
+      } else {
+        // 非文章页面的逻辑保持不变
+        const siteHeader = document.querySelector('.site-header');
+        const topNavBrand = document.getElementById('topNavBrand');
+
+        function toggleTopNavBrand() {
+          const siteHeaderBottom = siteHeader.getBoundingClientRect().bottom;
+          if (siteHeaderBottom < 0) {
+            topNavBrand.style.display = 'flex';
+          } else {
+            topNavBrand.style.display = 'none';
+          }
+        }
+
+        window.addEventListener('scroll', toggleTopNavBrand);
+        toggleTopNavBrand();
+      }
+    });
+  </script>
+</body>
+
 </html>

@@ -1,19 +1,109 @@
 <!DOCTYPE html>
 <html
+  lang="zh-CN"
   xmlns:th="https://www.thymeleaf.org"
   th:replace="~{layout :: html(head = null,content = ~{::content})}"
 >
   <th:block th:fragment="content">
-    <h1 th:text="${category.spec.displayName}"></h1>
-    <ul>
-      <li th:each="post : ${posts.items}">
-        <a
-          th:href="@{${post.status.permalink}}"
-          th:text="${post.spec.title}"
-        ></a>
-      </li>
-    </ul>
-    <a th:if="${posts.hasPrevious()}" th:href="@{${posts.prevUrl}}">上一页</a>
-    <a th:if="${posts.hasNext()}" th:href="@{${posts.nextUrl}}">下一页</a>
+    <!-- 分类信息 -->
+    <div class="category-header">
+      <div class="category-info">
+        <h1 class="category-title">
+          <i class="ri-folder-line"></i>
+          <span th:text="${category.spec.displayName}">分类名称</span>
+        </h1>
+        <p class="category-description" th:if="${category.spec.description}" 
+           th:text="${category.spec.description}">分类描述</p>
+      </div>
+      <div class="category-stats">
+        <span class="stats-item">
+          <i class="ri-article-line"></i>
+          <span th:text="${posts.total}">0</span> 篇文章
+        </span>
+      </div>
+    </div>
+
+    <!-- 文章列表 -->
+    <div class="post-grid">
+      <article th:each="post : ${posts.items}" class="post-card">
+        <!-- 封面图 -->
+        <div class="post-cover" th:if="${post.spec.cover != null and post.spec.cover != ''}">
+          <img th:src="${post.spec.cover}"
+               th:alt="${post.spec.title}"
+               loading="lazy">
+        </div>
+
+        <!-- 文章内容 -->
+        <div class="post-content">
+          <h2 class="post-title">
+            <a th:href="@{${post.status.permalink}}" th:text="${post.spec.title}"></a>
+          </h2>
+          
+          <p class="post-excerpt" th:if="${post.status.excerpt}" 
+             th:text="${post.status.excerpt}"></p>
+
+          <div class="post-meta">
+            <span class="post-meta-item">
+              <i class="ri-calendar-line"></i>
+              <span th:text="${#dates.format(post.spec.publishTime, 'yyyy-MM-dd')}"></span>
+            </span>
+            <div class="post-stats">
+              <span class="post-meta-item">
+                <i class="ri-eye-line"></i>
+                <span th:text="${post.stats.visit}"></span>
+              </span>
+              <span class="post-meta-item">
+                <i class="ri-chat-1-line"></i>
+                <span th:text="${post.stats.comment}"></span>
+              </span>
+              <span class="post-meta-item">
+                <i class="ri-thumb-up-line"></i>
+                <span th:text="${post.stats.upvote}"></span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- 分页 -->
+    <div class="pagination" th:if="${posts.totalPages > 1}">
+      <!-- 上一页 -->
+      <a class="page-btn prev" th:href="${posts.hasPrevious()} ? @{${posts.prevUrl}} : 'javascript:void(0)'"
+         th:classappend="${!posts.hasPrevious()} ? 'disabled'">
+        <i class="ri-arrow-left-s-line"></i>
+      </a>
+
+      <!-- 页码 -->
+      <!-- 显示第一页 -->
+      <th:block th:if="${posts.page > 3}">
+        <a class="page-btn" th:href="@{${category.status.permalink}}">1</a>
+        <span class="page-dots" th:if="${posts.page != 4}">...</span>
+      </th:block>
+
+      <!-- 显示当前页附近的页码 -->
+      <th:block th:each="index : ${#numbers.sequence(posts.page - 2, posts.page + 2)}">
+        <span class="page-btn current" th:if="${posts.page == index}" 
+              th:text="${posts.page}"></span>
+        <a class="page-btn" th:unless="${posts.page == index}"
+           th:if="${index > 0 && index <= posts.totalPages}"
+           th:href="@{${category.status.permalink + '/page/' + index}}"
+           th:text="${index}"></a>
+      </th:block>
+
+      <!-- 显示最后一页 -->
+      <th:block th:if="${posts.totalPages - posts.page > 2}">
+        <span class="page-dots" th:if="${posts.totalPages - posts.page != 3}">...</span>
+        <a class="page-btn" 
+           th:href="@{${category.status.permalink + '/page/' + posts.totalPages}}"
+           th:text="${posts.totalPages}"></a>
+      </th:block>
+
+      <!-- 下一页 -->
+      <a class="page-btn next" th:href="${posts.hasNext()} ? @{${posts.nextUrl}} : 'javascript:void(0)'"
+         th:classappend="${!posts.hasNext()} ? 'disabled'">
+        <i class="ri-arrow-right-s-line"></i>
+      </a>
+    </div>
   </th:block>
 </html>

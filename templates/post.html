@@ -1,10 +1,76 @@
 <!DOCTYPE html>
 <html
+  lang="zh-CN"
   xmlns:th="https://www.thymeleaf.org"
   th:replace="~{layout :: html(head = null,content = ~{::content})}"
 >
   <th:block th:fragment="content">
-    <h1 th:text="${post.spec.title}"></h1>
-    <article th:utext="${post.content.content}"></article>
+    <article class="post-detail">
+      <!-- 文章头部信息 -->
+      <header class="post-header">
+        <!-- 分类标签 -->
+        <div class="post-categories" th:if="${post.categories != null and not #lists.isEmpty(post.categories)}">
+          <a th:each="category : ${post.categories}"
+             th:href="@{${category.status.permalink}}"
+             th:text="${category.spec.displayName}"
+             class="post-category"></a>
+        </div>
+
+        <h1 class="post-title" th:text="${post.spec.title}">文章标题</h1>
+        
+        <div class="post-meta">
+          <div class="post-meta-left">
+            <span class="post-meta-item">
+              <i class="ri-calendar-line"></i>
+              <span th:text="${#dates.format(post.spec.publishTime, 'yyyy-MM-dd')}"></span>
+            </span>
+            <span class="post-meta-item">
+              <i class="ri-user-line"></i>
+              <span th:text="${post.spec.owner}"></span>
+            </span>
+          </div>
+          <div class="post-meta-right">
+            <span class="post-meta-item">
+              <i class="ri-eye-line"></i>
+              <span th:text="${post.stats.visit}"></span>
+            </span>
+            <span class="post-meta-item">
+              <i class="ri-chat-1-line"></i>
+              <span th:text="${post.stats.comment}"></span>
+            </span>
+            <span class="post-meta-item">
+              <i class="ri-thumb-up-line"></i>
+              <span th:text="${post.stats.upvote}"></span>
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <!-- 文章封面图 -->
+      <div class="post-cover" th:if="${post.spec.cover != null and post.spec.cover != ''}">
+        <img th:src="${post.spec.cover}" th:alt="${post.spec.title}" loading="lazy">
+      </div>
+
+      <!-- 文章内容 -->
+      <div class="post-content markdown-body" th:utext="${post.content.content}">
+      </div>
+
+      <!-- 文章标签 -->
+      <div class="post-tags" th:if="${post.tags != null and not #lists.isEmpty(post.tags)}">
+        <i class="ri-price-tag-3-line"></i>
+        <a th:each="tag : ${post.tags}"
+           th:href="@{${tag.status.permalink}}"
+           th:text="${tag.spec.displayName}"></a>
+      </div>
+    </article>
+
+    <!-- 评论区 -->
+    <div class="post-comments" th:if="${haloCommentEnabled}">
+      <halo:comment 
+        group="content.halo.run" 
+        kind="Post" 
+        th:attr="name=${post.metadata.name}" 
+      />
+    </div>
   </th:block>
 </html>

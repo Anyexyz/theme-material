@@ -1,26 +1,50 @@
 <!DOCTYPE html>
 <html
+  lang="zh-CN"
   xmlns:th="https://www.thymeleaf.org"
   th:replace="~{layout :: html(head = null,content = ~{::content})}"
 >
   <th:block th:fragment="content">
-    <th:block th:each="archive : ${archives.items}">
-      <h1 th:text="${archive.year}"></h1>
-      <ul class="listing">
-        <th:block th:each="month : ${archive.months}">
-          <li th:each="post : ${month.posts}">
-            <a
-              th:href="@{${post.status.permalink}}"
-              th:title="${post.spec.title}"
-              th:text="${post.spec.title}"
-            ></a>
-          </li>
-        </th:block>
-      </ul>
-    </th:block>
-    <a th:if="${archives.hasPrevious()}" th:href="@{${archives.prevUrl}}">
-      上一页
-    </a>
-    <a th:if="${archives.hasNext()}" th:href="@{${archives.nextUrl}}">下一页</a>
+    <!-- 归档页面头部 -->
+    <div class="archives-header">
+      <h1 class="archives-title">
+        <i class="ri-archive-line"></i>
+        文章归档
+      </h1>
+      <div class="archives-stats">
+        <span class="stats-item">
+          <i class="ri-article-line"></i>
+          共 <span th:text="${posts.total}">0</span> 篇文章
+        </span>
+      </div>
+    </div>
+
+    <!-- 归档列表 -->
+    <div class="archives-list">
+      <!-- 按年份分组 -->
+      <div class="archive-year" th:each="year : ${archives}">
+        <div class="year-header">
+          <h2 class="year-title">
+            <i class="ri-calendar-line"></i>
+            <span th:text="${year.year}">2024</span>
+          </h2>
+          <span class="year-count">
+            <span th:text="${year.posts.size()}">0</span> 篇
+          </span>
+        </div>
+        
+        <!-- 年份下的文章列表 -->
+        <div class="year-posts">
+          <article class="archive-post" th:each="post : ${year.posts}">
+            <div class="post-meta">
+              <time th:text="${#dates.format(post.spec.publishTime, 'MM-dd')}">01-01</time>
+            </div>
+            <h3 class="post-title">
+              <a th:href="@{${post.status.permalink}}" th:text="${post.spec.title}">文章标题</a>
+            </h3>
+          </article>
+        </div>
+      </div>
+    </div>
   </th:block>
 </html>
